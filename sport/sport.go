@@ -22,21 +22,28 @@ type candidates struct {
 	Weight int
 }
 type DetailWriter interface {
-	WriteToFile(candidates) error
+	WriteToFile([]candidates, string) error
 }
 
 type DetailWriterJson struct{}
 type DetailWriterYaml struct{}
 
-func (dj DetailWriterJson) WriteToFile(c candidates) error {
-	fmt.Println("yo")
-	fmt.Println(c)
+func (dy DetailWriterYaml) WriteToFile(cl []candidates, file_path string) error {
+	yaml_data, err := yaml.Marshal(&cl)
+	if err != nil {
+		fmt.Println("Error while marshaling yaml", err)
+	}
+	write_file(file_path, yaml_data)
 	return nil
 }
 
-func (dy DetailWriterYaml) WriteToFile(c candidates) error {
-	fmt.Println("yo")
-	fmt.Println(c)
+func (dj DetailWriterJson) WriteToFile(cl []candidates, file_path string) error {
+
+	json_data, err := json.MarshalIndent(&cl, "", "")
+	if err != nil {
+		fmt.Println("Error while marshaling yaml", err)
+	}
+	write_file(file_path, json_data)
 	return nil
 }
 
@@ -48,6 +55,7 @@ func GetCandidates(filepath string) {
 	if err != nil {
 		fmt.Errorf("some error occured", err)
 	}
+
 	fmt.Println(os.Getenv("SHELL"))
 
 	lines := make([]candidates, 0)
@@ -66,33 +74,20 @@ func GetCandidates(filepath string) {
 		}
 
 		var temp_candidate = candidates{temp[0], age, string(temp[2][0]), sports, float32(height), weight}
-		// temp_candidate.Sports = sports
 
 		list.PushBack(temp_candidate)
 
 		lines = append(lines, temp_candidate)
 	}
 
-	fmt.Println(lines[0])
-	fmt.Println(lines)
-	yaml_data, err := yaml.Marshal(&lines)
-	yaml_data1, err := yaml.Marshal(&lines[0])
-	json_data, err := json.Marshal(&lines)
-	fmt.Println(string(yaml_data1))
-	fmt.Println(string(yaml_data))
-
-	write_yaml(yaml_data)
-	// write_yaml(yaml_data1)
-	write_json(json_data)
-
 	var djw DetailWriter
 	var dyw DetailWriter
 
 	djw = DetailWriterJson{}
-	djw.WriteToFile(lines[0])
+	djw.WriteToFile(lines, "json.json")
 
 	dyw = DetailWriterYaml{}
-	dyw.WriteToFile(lines[0])
+	dyw.WriteToFile(lines, "yaml.yaml")
 
 }
 
@@ -108,7 +103,6 @@ func create_obj(ip string) (ips []string, sports []string) {
 	ip = strings.ReplaceAll(ip, ip[start:end+1], "")
 
 	ips = strings.Split(ip, ",")
-	// fmt.Println(ips, sports)
 
 	return ips, sports
 
