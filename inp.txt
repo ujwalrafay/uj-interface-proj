@@ -1,0 +1,7 @@
+Rohan,12,M,[cricket,football],5.9,50
+Rohit,11,M,[football],5.8,51
+Keerthi,13,F,[badminton,table tennis],5.5,45
+Rohini,12,M,[tennis],5.4,44
+Rakesh,12,M,[cricket],5.9,55
+Vinay,12,M,[chess,carrom],5.7,52
+Neha,12,F,[volleyball],5.7,40
