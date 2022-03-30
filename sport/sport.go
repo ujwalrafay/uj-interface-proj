@@ -2,14 +2,12 @@ package sport
 
 import (
 	"bufio"
-	"container/list"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
 
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
 
@@ -39,7 +37,7 @@ func (dy DetailWriterYaml) WriteToFile(cl []candidates, file_path string) error 
 
 func (dj DetailWriterJson) WriteToFile(cl []candidates, file_path string) error {
 
-	json_data, err := json.MarshalIndent(&cl, "", "")
+	json_data, err := json.MarshalIndent(&cl, "", "\t")
 	if err != nil {
 		fmt.Println("Error while marshaling yaml", err)
 	}
@@ -49,23 +47,18 @@ func (dj DetailWriterJson) WriteToFile(cl []candidates, file_path string) error 
 
 func GetCandidates(filepath string) {
 
-	fmt.Println(viper.Get("SHELL"))
-
 	dataf, err := os.Open(filepath)
 	if err != nil {
 		fmt.Errorf("some error occured", err)
 	}
 
-	fmt.Println(os.Getenv("SHELL"))
-
 	lines := make([]candidates, 0)
 	reader := bufio.NewScanner(dataf)
-	list := list.New()
+
 	for reader.Scan() {
 		ln := string(reader.Text())
-		// fmt.Println(ln)
-		temp, sports := create_obj(ln)
-		fmt.Println("----------------", temp, sports)
+		temp, sports := process_file(ln)
+
 		age, err := strconv.Atoi(temp[1])
 		height, err := strconv.ParseFloat(temp[4], 32)
 		weight, err := strconv.Atoi(temp[5])
@@ -74,8 +67,6 @@ func GetCandidates(filepath string) {
 		}
 
 		var temp_candidate = candidates{temp[0], age, string(temp[2][0]), sports, float32(height), weight}
-
-		list.PushBack(temp_candidate)
 
 		lines = append(lines, temp_candidate)
 	}
@@ -91,7 +82,7 @@ func GetCandidates(filepath string) {
 
 }
 
-func create_obj(ip string) (ips []string, sports []string) {
+func process_file(ip string) (ips []string, sports []string) {
 
 	start := strings.Index(ip, "[")
 	end := strings.Index(ip, "]")
