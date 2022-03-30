@@ -3,7 +3,7 @@ package sport
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -29,7 +29,7 @@ type DetailWriterYaml struct{}
 func (dy DetailWriterYaml) WriteToFile(cl []candidates, file_path string) error {
 	yaml_data, err := yaml.Marshal(&cl)
 	if err != nil {
-		fmt.Println("Error while marshaling yaml", err)
+		log.Fatal("Error while marshaling yaml \t", err)
 	}
 	write_file(file_path, yaml_data)
 	return nil
@@ -39,7 +39,7 @@ func (dj DetailWriterJson) WriteToFile(cl []candidates, file_path string) error 
 
 	json_data, err := json.MarshalIndent(&cl, "", "\t")
 	if err != nil {
-		fmt.Println("Error while marshaling yaml", err)
+		log.Fatal("Error while marshaling json \t", err)
 	}
 	write_file(file_path, json_data)
 	return nil
@@ -49,7 +49,7 @@ func GetCandidates(filepath string) {
 
 	dataf, err := os.Open(filepath)
 	if err != nil {
-		fmt.Errorf("some error occured", err)
+		log.Fatal("some error occured \t", err)
 	}
 
 	lines := make([]candidates, 0)
@@ -63,7 +63,7 @@ func GetCandidates(filepath string) {
 		height, err := strconv.ParseFloat(temp[4], 32)
 		weight, err := strconv.Atoi(temp[5])
 		if err != nil {
-			fmt.Println("some error occured", err)
+			log.Fatal("some error occured \t", err)
 		}
 
 		var temp_candidate = candidates{temp[0], age, string(temp[2][0]), sports, float32(height), weight}
@@ -103,13 +103,13 @@ func write_file(write_file_path string, data_to_write []byte) {
 
 	f, err := os.Create(write_file_path)
 	if err != nil {
-		fmt.Println("Error occured while creating file to write", err)
+		log.Fatal("Error occured while creating file to write \t", err)
 	}
 	w := bufio.NewWriter(f)
 	_, err = w.WriteString(string(data_to_write))
 
 	if err != nil {
-		fmt.Println("Error while writing ", err)
+		log.Fatal("Error while writing \t", err)
 	}
 	w.Flush()
 
