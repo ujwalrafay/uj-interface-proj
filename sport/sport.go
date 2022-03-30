@@ -31,7 +31,10 @@ func (dy DetailWriterYaml) WriteToFile(cl []candidates, file_path string) error 
 	if err != nil {
 		log.Fatal("Error while marshaling yaml \t", err)
 	}
-	write_file(file_path, yaml_data)
+	_, err = Write_file(file_path, yaml_data)
+	if err != nil {
+		log.Fatal("error writing yaml file")
+	}
 	return nil
 }
 
@@ -41,7 +44,10 @@ func (dj DetailWriterJson) WriteToFile(cl []candidates, file_path string) error 
 	if err != nil {
 		log.Fatal("Error while marshaling json \t", err)
 	}
-	write_file(file_path, json_data)
+	_, err = Write_file(file_path, json_data)
+	if err != nil {
+		log.Fatal("error writing json file")
+	}
 	return nil
 }
 
@@ -57,7 +63,7 @@ func GetCandidates(filepath string) {
 
 	for reader.Scan() {
 		ln := string(reader.Text())
-		temp, sports := process_file(ln)
+		temp, sports := Process_file(ln)
 
 		age, err := strconv.Atoi(temp[1])
 		height, err := strconv.ParseFloat(temp[4], 32)
@@ -82,7 +88,7 @@ func GetCandidates(filepath string) {
 
 }
 
-func process_file(ip string) (ips []string, sports []string) {
+func Process_file(ip string) (ips []string, sports []string) {
 
 	start := strings.Index(ip, "[")
 	end := strings.Index(ip, "]")
@@ -99,18 +105,19 @@ func process_file(ip string) (ips []string, sports []string) {
 
 }
 
-func write_file(write_file_path string, data_to_write []byte) {
+func Write_file(write_file_path string, data_to_write []byte) (int, error) {
 
 	f, err := os.Create(write_file_path)
 	if err != nil {
 		log.Fatal("Error occured while creating file to write \t", err)
 	}
 	w := bufio.NewWriter(f)
-	_, err = w.WriteString(string(data_to_write))
+	n, err := w.WriteString(string(data_to_write))
 
 	if err != nil {
 		log.Fatal("Error while writing \t", err)
 	}
 	w.Flush()
+	return n, err
 
 }
