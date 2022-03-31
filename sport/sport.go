@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
 
@@ -52,6 +53,15 @@ func (dj DetailWriterJson) WriteToFile(cl []candidates, file_path string) error 
 }
 
 func GetCandidates(filepath string) {
+	//geting env varible
+	viper.BindEnv("FORMAT")
+	env_variable := viper.Get("FORMAT")
+	format := "empty"
+	//handling if env variable format not set
+	if env_variable != nil {
+
+		format = env_variable.(string)
+	}
 
 	dataf, err := os.Open(filepath)
 	if err != nil {
@@ -79,13 +89,16 @@ func GetCandidates(filepath string) {
 
 	var djw DetailWriter
 	var dyw DetailWriter
-
-	djw = DetailWriterJson{}
-	djw.WriteToFile(lines, "json.json")
-
-	dyw = DetailWriterYaml{}
-	dyw.WriteToFile(lines, "yaml.yaml")
-
+	//discarding case sensitivity by using EqualFold
+	if strings.EqualFold(format, "json") {
+		djw = DetailWriterJson{}
+		djw.WriteToFile(lines, "json.json")
+	} else if strings.EqualFold(format, "yaml") {
+		dyw = DetailWriterYaml{}
+		dyw.WriteToFile(lines, "yaml.yaml")
+	} else {
+		log.Fatal("Environment variable not set for format")
+	}
 }
 
 func Process_file(ip string) (ips []string, sports []string) {
